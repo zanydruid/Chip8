@@ -1,4 +1,7 @@
 language: java
+os:
+  - osx
+  - linux
 
 script:
    - gradle build
