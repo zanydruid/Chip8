@@ -11,11 +11,15 @@ public class Chip {
     // store current operation code
     private short opcode;
 
-    // 4K memory
-    private char[] memory = new char[4096];
+    /* System memory map
+    0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
+    0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
+    0x200-0xFFF - Program ROM and work RAM
+    */
+    private char[] memory; // 4K memory
 
     // register V0 to VE, VE has 2 bytes for 'carry flag'
-    private char[] register = new char[16];
+    private char[] register;
 
     // index register
     private short I;
@@ -23,14 +27,8 @@ public class Chip {
     // program counter
     private short pc;
 
-    /* System memory map
-    0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
-    0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
-    0x200-0xFFF - Program ROM and work RAM
-    */
-
     // screen 2048 pixels 64 * 32
-    private char[] gfx = new char[64 * 32];
+    private char[] screen;
 
     // two timer registers. when set above 0, they will count down to 0.
     private char delayTimer;
@@ -38,9 +36,28 @@ public class Chip {
 
     // a stack to store pc when a jump happens.
     // Stack size is 16 which represent 16 levels.
-    private Stack<Character> pcStack = new Stack<>();
+    private Stack<Character> pcStack;
 
     // keypad with 16 keys, save the current state of key
-    private char[] key = new char[16];
+    private char[] keys;
+
+    /**
+     * Initialize chip8 CPU
+     */
+    public void init() {
+
+        // hardware init
+        memory = new char[4096];
+        register = new char[16];
+        screen = new char[64 * 32];
+        pcStack = new Stack<>();
+        keys = new char[16];
+
+        // registers init
+        I = 0x0;
+        pc = 0x200;
+        delayTimer = 0;
+        soundTimer = 0;
+    }
 
 }
