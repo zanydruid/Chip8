@@ -9,7 +9,7 @@ import java.util.Stack;
 @Data
 public class Chip {
     // store current operation code
-    private short opcode;
+    private char opcode;
 
     /* System memory map
     0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
@@ -22,10 +22,10 @@ public class Chip {
     private char[] register;
 
     // index register
-    private short I;
+    private char I;
 
     // program counter
-    private short pc;
+    private char pc;
 
     // screen 2048 pixels 64 * 32
     private char[] screen;
@@ -41,10 +41,31 @@ public class Chip {
     // keypad with 16 keys, save the current state of key
     private char[] keys;
 
+    // font set, each character is 4 * 5 pixels.
+    private char[] fontSet =
+            {
+                    0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+                    0x20, 0x60, 0x20, 0x20, 0x70, // 1
+                    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+                    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+                    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+                    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+                    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+                    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+                    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+                    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+                    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+                    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+                    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+                    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+                    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+                    0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+            };
+
     /**
      * Initialize chip8 CPU
      */
-    public void init() {
+    public void init(char[] program) {
 
         // hardware init
         memory = new char[4096];
@@ -53,11 +74,29 @@ public class Chip {
         pcStack = new Stack<>();
         keys = new char[16];
 
+        // load fontset
+        for (int i = 0; i < fontSet.length; i++) {
+            memory[i] = fontSet[i];
+        }
+
         // registers init
         I = 0x0;
-        pc = 0x200;
+        pc = 0x200;  // start at beginning of ROM
         delayTimer = 0;
         soundTimer = 0;
+
+        // load program into the memory
+        for(int i = 0; i < program.length; i++) {
+            memory[i + 512] = program[i];
+        }
+    }
+
+    /**
+     * Start chip8 CPU
+     */
+    public void run() {
+        // get operation code, 2 bytes
+        opcode = (char)(memory[pc] << 8 | memory[pc + 1]);
     }
 
 }
