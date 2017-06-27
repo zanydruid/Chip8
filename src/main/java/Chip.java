@@ -1,9 +1,12 @@
+import lombok.Data;
+
 import java.util.Stack;
 
 /**
  * Created by yizhu on 6/26/17.
  * Chip 8 specifications
  */
+@Data
 public class Chip {
     // store current operation code
     private short opcode;
@@ -39,8 +42,5 @@ public class Chip {
 
     // keypad with 16 keys, save the current state of key
     private char[] key = new char[16];
-
-
-
 
 }
