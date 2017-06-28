@@ -4,15 +4,15 @@ import java.util.Stack;
 
 /**
  * Created by yizhu on 6/26/17.
- * Chip 8 specifications
+ * Chip8 specifications
  */
 @Data
-public class Chip {
+public class CPU {
     // store current operation code
     private char opcode;
 
     /* System memory map
-    0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
+    0x000-0x1FF - CPU 8 interpreter (contains font set in emu)
     0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
     0x200-0xFFF - Program ROM and work RAM
     */
