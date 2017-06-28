@@ -149,10 +149,11 @@ public class Processor {
             case 0x0000: // 0NNN
                 switch (opcode & 0xFF) {
                     case 0xE0: // 00E0 clear screen
-                        //TODO
+                        clearScreen();
+                        register[0xF] = 1; // VF set to 1
                         break;
                     case 0xEE: // 00EE return from a subroutine
-                        //TODO
+                        pc = pcStack.pop();
                         break;
                     default: // Call program at NNN
                         //TODO
@@ -161,41 +162,48 @@ public class Processor {
                 break;
 
             case 0x1000: // 1NNN jumps to address NNN
-                //TODO
+                pc = (char)(opcode & 0xFFF);
                 break;
 
             case 0x2000: // 2NNN calls subroutine at NNN
-                //TODO
+                pcStack.push(pc);
+                pc = (char)(opcode & 0xFFF);
                 break;
 
             case 0x3000: // 3XNN skips next instruction if VX == NN
-                //TODO
+                if (register[(opcode & 0xF00) >> 2] ==  (opcode & 0xFF)) {
+                    pc += 2;
+                }
                 break;
 
             case 0x4000: // 4XNN skips next instruction if VX != NN
-                //TODO
+                if (register[(opcode & 0xF00) >> 2] !=  (opcode & 0xFF)) {
+                    pc += 2;
+                }
                 break;
 
             case 0x5000: // 5XY0 skips next instruction if VX == VY
-                //TODO
+                if (register[(opcode & 0xF00) >> 2] !=  register[(opcode & 0xF0) >> 1]) {
+                    pc += 2;
+                }
                 break;
 
             case 0x6000: // 6XNN sets VX to NN
-                //TODO
+                register[(opcode & 0xF00) >> 2] = (char)(opcode & 0xFF);
                 break;
 
             case 0x7000: // 7XNN adds NN to VX
-                //TODO
+                register[(opcode & 0xF00) >> 2] += (char)(opcode & 0xFF);
                 break;
 
             case 0x8000:
                 switch(opcode & 0xF) {
                     case 0x0: // 8XY0 sets VX to value of VY
-                        //TODO
+                        register[(opcode & 0xF00) >> 2] = register[(opcode & 0xF0) >> 1];
                         break;
 
                     case 0x1: // 8XY1 Vx = Vx | Vy
-                        //TODO
+                        register[(opcode & 0xF00) >> 2] = (char)(register[(opcode & 0xF00) >> 2] | register[(opcode & 0xF0) >> 1]);
                         break;
 
                     case 0x2: // 8XY2 Vx = Vx & Vy
@@ -321,6 +329,11 @@ public class Processor {
                 soundTimer--;
             }
         }
+    }
+
+    // clear screen
+    private void clearScreen() {
+        screen = new char[64 * 32];
     }
 
 }
