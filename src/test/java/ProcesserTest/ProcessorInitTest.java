@@ -18,23 +18,6 @@ public class ProcessorInitTest {
 
     @Test
     public void testInit() {
-//        // hardware init
-//        memory = new char[4096];
-//        register = new char[16];
-//        screen = new char[64 * 32];
-//        pcStack = new Stack<>();
-//        keys = new char[16];
-//
-//        // load fontset
-//        for (int i = 0; i < fontSet.length; i++) {
-//            memory[i] = fontSet[i];
-//        }
-//
-//        // registers init
-//        I = 0x0;
-//        pc = 0x200;  // start at beginning of ROM
-//        delayTimer = 0;
-//        soundTimer = 0;
 
         cpu.init();
         Assert.assertEquals(4096, cpu.getMemory().length); // memory 4096
