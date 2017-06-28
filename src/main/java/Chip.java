@@ -89,7 +89,7 @@ public class Chip {
     /**
      * load program into the memory
      */
-    public void loadProgram() {
+    public void loadProgram(String fileName) {
 
     }
 
@@ -98,7 +98,28 @@ public class Chip {
      */
     public void run() {
         // get operation code, 2 bytes
-        opcode = (char)(memory[pc] << 8 | memory[pc + 1]);
+        opcode = (char) (memory[pc] << 8 | memory[pc + 1]);
+
+        // decode operation code
+        switch (opcode & 0xF000) {
+
+
+            default:
+                System.out.println("Unknown opcode: " + opcode);
+        }
+
+        // update timers
+        if (delayTimer > 0) {
+            delayTimer--;
+        }
+
+        if (soundTimer > 0) {
+            if (soundTimer == 1) {
+                System.out.println("BEEP!!!");
+                soundTimer--;
+            }
+        }
     }
 
 }
+
