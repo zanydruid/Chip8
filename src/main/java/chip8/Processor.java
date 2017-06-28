@@ -146,9 +146,168 @@ public class Processor {
         // decode operation code
         switch (opcode & 0xF000) {
 
+            case 0x0000: // 0NNN
+                switch (opcode & 0xFF) {
+                    case 0xE0: // 00E0 clear screen
+                        //TODO
+                        break;
+                    case 0xEE: // 00EE return from a subroutine
+                        //TODO
+                        break;
+                    default: // Call program at NNN
+                        //TODO
+                        break;
+                }
+                break;
+
+            case 0x1000: // 1NNN jumps to address NNN
+                //TODO
+                break;
+
+            case 0x2000: // 2NNN calls subroutine at NNN
+                //TODO
+                break;
+
+            case 0x3000: // 3XNN skips next instruction if VX == NN
+                //TODO
+                break;
+
+            case 0x4000: // 4XNN skips next instruction if VX != NN
+                //TODO
+                break;
+
+            case 0x5000: // 5XY0 skips next instruction if VX == VY
+                //TODO
+                break;
+
+            case 0x6000: // 6XNN sets VX to NN
+                //TODO
+                break;
+
+            case 0x7000: // 7XNN adds NN to VX
+                //TODO
+                break;
+
+            case 0x8000:
+                switch(opcode & 0xF) {
+                    case 0x0: // 8XY0 sets VX to value of VY
+                        //TODO
+                        break;
+
+                    case 0x1: // 8XY1 Vx = Vx | Vy
+                        //TODO
+                        break;
+
+                    case 0x2: // 8XY2 Vx = Vx & Vy
+                        //TODO
+                        break;
+
+                    case 0x3: // 8XY3 Vx = Vx ^ Vy
+                        //TODO
+                        break;
+
+                    case 0x4: // 8XY4 Vx += Vy
+                        //TODO
+                        break;
+
+                    case 0x5: // 8XY5 Vx -= Vy
+                        //TODO
+                        break;
+
+                    case 0x6: // 8XY6 Vx >> 1
+                        //TODO
+                        break;
+
+                    case 0x7: // 8XY7 Vx = Vy - Vx
+                        //TODO
+                        break;
+
+                    case 0xE: // 8XYE Vx << 1
+                        //TODO
+                        break;
+
+                    default:
+                        System.out.println("Error opcode " + opcode);
+                }
+                break;
+
+            case 0x9000: // 9XY0 skips the next instruction if Vx != Vy
+                //TODO
+                break;
+
+            case 0xA000: // ANNN set I to address NNN
+                //TODO
+                break;
+
+            case 0xB000: // BNNN jumps to NNN + V0
+                //TODO
+                break;
+
+            case 0xC000: // CXNN sets VX to bitwise on a random number with NN, Vx = rand()&NN
+                //TODO
+                break;
+
+            case 0xD000: // DXYN draws a sprite at (VX,VY) with 8 px width and N height, draw(Vx, Vy, N)
+                //TODO
+                break;
+
+            case 0xE000:
+                switch (opcode & 0xF) {
+                    case 0xE: // EX9E skips next instruction if key stored in VX is pressed.
+                        //TODO
+                        break;
+
+                    case 0x1: // EXA1 skips next instruction if key stored in VX isn;t pressed.
+                        //TODO
+                        break;
+                }
+                break;
+
+            case 0xF000:
+                switch (opcode & 0xFF) {
+                    case 0x07: // FX07 sets VX to the value of delay timer
+                        //TODO
+                        break;
+
+                    case 0x0A: // FX0A A key press is awaited, and then stored in VX. (Blocking Operation. All instruction halted until next key event)
+                        //TODO
+                        break;
+
+                    case 0x15: // FX15 Sets the delay timer to VX.
+                        //TODO
+                        break;
+
+                    case 0x18: // FX18 Sets the sound timer to VX.
+                        //TODO
+                        break;
+
+                    case 0x1E: // FX1E Adds VX to I. I +=Vx
+                        //TODO
+                        break;
+
+                    case 0x29: // FX29  	I=sprite_addr[Vx]
+                        //TODO
+                        break;
+
+                    case 0x33: // FX33 set_BCD(Vx); *(I+0)=BCD(3); *(I+1)=BCD(2);*(I+2)=BCD(1);
+                        //TODO
+                        break;
+
+                    case 0x55: // FX55 Stores V0 to VX (including VX) in memory starting at address I.
+                        //TODO
+                        break;
+
+                    case 0x65: // FX65 Fills V0 to VX (including VX) with values from memory starting at address I.
+                        //TODO
+                        break;
+
+
+                }
+                break;
 
             default:
                 System.out.println("Unknown opcode: " + opcode);
+                break;
         }
 
         // update timers
