@@ -1,3 +1,5 @@
+package chip8;
+
 /**
  * Created by yizhu on 6/27/17.
  */
@@ -11,10 +13,10 @@ public class Chip8 {
         // setup render system and register input callbacks
         // TODO
 
-        // Initialize CPU
-        CPU chip8 = new CPU();
+        // Initialize chip8.Processor
+        Processor chip8 = new Processor();
         chip8.init();
-        chip8.loadProgram(args[1]);
+        chip8.loadProgram(args[0]);
 
         // emulation loop
         for (;;) {

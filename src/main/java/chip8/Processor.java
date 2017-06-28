@@ -1,18 +1,24 @@
+package chip8;
+
 import lombok.Data;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 /**
  * Created by yizhu on 6/26/17.
- * Chip8 specifications
+ * chip8.Chip8 specifications
  */
 @Data
-public class CPU {
+public class Processor {
     // store current operation code
     private char opcode;
 
     /* System memory map
-    0x000-0x1FF - CPU 8 interpreter (contains font set in emu)
+    0x000-0x1FF - chip8.Processor 8 interpreter (contains font set in emu)
     0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
     0x200-0xFFF - Program ROM and work RAM
     */
@@ -63,7 +69,7 @@ public class CPU {
             };
 
     /**
-     * Initialize chip8 CPU
+     * Initialize chip8 chip8.Processor
      */
     public void init() {
 
@@ -90,11 +96,48 @@ public class CPU {
      * load program into the memory
      */
     public void loadProgram(String fileName) {
+        File file = new File(fileName);
+
+        if (!file.exists()) {
+            System.out.println("file: " + fileName + " doesn't exist!!!");
+            return;
+        }
+
+        if (!file.isFile() || !file.canRead()) {
+            System.out.println("file: " + fileName + " cannot be read from!!!");
+            return;
+        }
+
+        // buffer to store code from file
+        List<Character> buffer = new ArrayList<>();
+        try {
+            FileInputStream stream = new FileInputStream(file);
+
+            // store code in buffer
+            while (stream.available() > 0) {
+                buffer.add((char)stream.read());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // file is too big
+        if (buffer.size() > 3585) {
+            System.out.println("file: " + fileName + " is too big to be load in memory!!!");
+            System.out.println("file: " + buffer.size() + " memory: 3585.");
+            return;
+        }
+
+        // load into the memory
+        for(int i = 0; i < buffer.size(); i++) {
+            memory[512 + i] = buffer.get(i);
+        }
 
     }
 
     /**
-     * Start chip8 CPU
+     * Start chip8 chip8.Processor
      */
     public void run() {
         // get operation code, 2 bytes
