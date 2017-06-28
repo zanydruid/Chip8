@@ -65,7 +65,7 @@ public class Chip {
     /**
      * Initialize chip8 CPU
      */
-    public void init(char[] program) {
+    public void init() {
 
         // hardware init
         memory = new char[4096];
@@ -84,11 +84,13 @@ public class Chip {
         pc = 0x200;  // start at beginning of ROM
         delayTimer = 0;
         soundTimer = 0;
+    }
 
-        // load program into the memory
-        for(int i = 0; i < program.length; i++) {
-            memory[i + 512] = program[i];
-        }
+    /**
+     * load program into the memory
+     */
+    public void loadProgram() {
+
     }
 
     /**
