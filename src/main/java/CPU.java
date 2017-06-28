@@ -4,15 +4,15 @@ import java.util.Stack;
 
 /**
  * Created by yizhu on 6/26/17.
- * Chip 8 specifications
+ * Chip8 specifications
  */
 @Data
-public class Chip {
+public class CPU {
     // store current operation code
     private char opcode;
 
     /* System memory map
-    0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
+    0x000-0x1FF - CPU 8 interpreter (contains font set in emu)
     0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
     0x200-0xFFF - Program ROM and work RAM
     */
@@ -65,7 +65,7 @@ public class Chip {
     /**
      * Initialize chip8 CPU
      */
-    public void init(char[] program) {
+    public void init() {
 
         // hardware init
         memory = new char[4096];
@@ -84,11 +84,13 @@ public class Chip {
         pc = 0x200;  // start at beginning of ROM
         delayTimer = 0;
         soundTimer = 0;
+    }
 
-        // load program into the memory
-        for(int i = 0; i < program.length; i++) {
-            memory[i + 512] = program[i];
-        }
+    /**
+     * load program into the memory
+     */
+    public void loadProgram(String fileName) {
+
     }
 
     /**
@@ -96,7 +98,28 @@ public class Chip {
      */
     public void run() {
         // get operation code, 2 bytes
-        opcode = (char)(memory[pc] << 8 | memory[pc + 1]);
+        opcode = (char) (memory[pc] << 8 | memory[pc + 1]);
+
+        // decode operation code
+        switch (opcode & 0xF000) {
+
+
+            default:
+                System.out.println("Unknown opcode: " + opcode);
+        }
+
+        // update timers
+        if (delayTimer > 0) {
+            delayTimer--;
+        }
+
+        if (soundTimer > 0) {
+            if (soundTimer == 1) {
+                System.out.println("BEEP!!!");
+                soundTimer--;
+            }
+        }
     }
 
 }
+
