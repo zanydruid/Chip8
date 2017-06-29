@@ -83,7 +83,7 @@ public class Processor {
         pcStack = new Stack<>();
         keys = new char[16];
 
-        // load fontset
+        // load font set
         for (int i = 0; i < fontSet.length; i++) {
             memory[i] = fontSet[i];
         }
@@ -231,31 +231,48 @@ public class Processor {
                         break;
 
                     case 0x2: // 8XY2 Vx = Vx & Vy
-                        //TODO
+                        register[OP_X(opcode)] &= register[OP_Y(opcode)];
                         break;
 
                     case 0x3: // 8XY3 Vx = Vx ^ Vy
-                        //TODO
+                        register[OP_X(opcode)] ^= register[OP_Y(opcode)];
                         break;
 
                     case 0x4: // 8XY4 Vx += Vy
-                        //TODO
+                        if (register[OP_X(opcode)] > (0xFF - register[OP_Y(opcode)])) { // if carry
+                            register[0xF] = 1;
+                        } else {
+                            register[0xF] = 0;
+                        }
+                        register[OP_X(opcode)] += register[OP_Y(opcode)];
                         break;
 
                     case 0x5: // 8XY5 Vx -= Vy
-                        //TODO
+                        if (register[OP_X(opcode)] < register[OP_Y(opcode)]) { // if borrow
+                            register[0xF] = 1;
+                        } else {
+                            register[0xF] = 0;
+                        }
+                        register[OP_X(opcode)] -= register[OP_Y(opcode)];
                         break;
 
                     case 0x6: // 8XY6 Vx >> 1
-                        //TODO
+                        register[0xF] = (char)(register[OP_X(opcode)] & 0xF); // put LSB in VF
+                        register[OP_X(opcode)] = (char)(register[OP_X(opcode)] >> 1);
                         break;
 
                     case 0x7: // 8XY7 Vx = Vy - Vx
-                        //TODO
+                        if (register[OP_X(opcode)] > register[OP_Y(opcode)]) { // if borrow
+                            register[0xF] = 1;
+                        } else {
+                            register[0xF] = 0;
+                        }
+                        register[OP_X(opcode)] = (char)(register[OP_Y(opcode)] - register[OP_X(opcode)]);
                         break;
 
                     case 0xE: // 8XYE Vx << 1
-                        //TODO
+                        register[0xF] = (char)(register[OP_X(opcode)] & 0xF0); // put MSB to VF
+                        register[OP_X(opcode)] = (char)(register[OP_X(opcode)] << 1);
                         break;
 
                     default:
@@ -354,10 +371,6 @@ public class Processor {
             }
         }
     }
-
-
-
-
 
     /**
      * clear screen
