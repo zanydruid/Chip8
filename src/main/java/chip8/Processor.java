@@ -68,6 +68,9 @@ public class Processor {
                     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
             };
 
+    // flag to indicate if need to call draw()
+    boolean drawFlag;
+
     /**
      * Initialize chip8 chip8.Processor
      */
@@ -80,7 +83,7 @@ public class Processor {
         pcStack = new Stack<>();
         keys = new char[16];
 
-        // load fontset
+        // load font set
         for (int i = 0; i < fontSet.length; i++) {
             memory[i] = fontSet[i];
         }
@@ -90,6 +93,7 @@ public class Processor {
         pc = 0x200;  // start at beginning of ROM
         delayTimer = 0;
         soundTimer = 0;
+        drawFlag = false;
     }
 
     /**
@@ -136,6 +140,29 @@ public class Processor {
 
     }
 
+    /** Decode helper functions to extract code from certain position*/
+
+    private int OP_NNN(char code) {
+        return code & 0xFFF;
+    }
+
+    private int OP_NN(char code) {
+        return code & 0xFF;
+    }
+
+    private int OP_N(char code) {
+        return code & 0xF;
+    }
+
+    private int OP_X(char code) {
+        return (code >> 8) & 0xF;
+    }
+
+    private int OP_Y(char code) {
+        return (code >> 4) & 0xF;
+    }
+
+
     /**
      * Start chip8 chip8.Processor
      */
@@ -150,13 +177,10 @@ public class Processor {
                 switch (opcode & 0xFF) {
                     case 0xE0: // 00E0 clear screen
                         clearScreen();
-                        register[0xF] = 1; // VF set to 1
+                        drawFlag = true;
                         break;
                     case 0xEE: // 00EE return from a subroutine
                         pc = pcStack.pop();
-                        break;
-                    default: // Call program at NNN
-                        //TODO
                         break;
                 }
                 break;
@@ -167,71 +191,88 @@ public class Processor {
 
             case 0x2000: // 2NNN calls subroutine at NNN
                 pcStack.push(pc);
-                pc = (char)(opcode & 0xFFF);
+                pc = (char)OP_NNN(opcode);
                 break;
 
             case 0x3000: // 3XNN skips next instruction if VX == NN
-                if (register[(opcode & 0xF00) >> 2] ==  (opcode & 0xFF)) {
+                if (register[OP_X(opcode)] ==  OP_NN(opcode)) {
                     pc += 2;
                 }
                 break;
 
             case 0x4000: // 4XNN skips next instruction if VX != NN
-                if (register[(opcode & 0xF00) >> 2] !=  (opcode & 0xFF)) {
+                if (register[OP_X(opcode)] !=  OP_NN(opcode)) {
                     pc += 2;
                 }
                 break;
 
             case 0x5000: // 5XY0 skips next instruction if VX == VY
-                if (register[(opcode & 0xF00) >> 2] !=  register[(opcode & 0xF0) >> 1]) {
+                if (register[OP_X(opcode)] !=  register[OP_Y(opcode)]) {
                     pc += 2;
                 }
                 break;
 
             case 0x6000: // 6XNN sets VX to NN
-                register[(opcode & 0xF00) >> 2] = (char)(opcode & 0xFF);
+                register[OP_X(opcode)] = (char)OP_NN(opcode);
                 break;
 
             case 0x7000: // 7XNN adds NN to VX
-                register[(opcode & 0xF00) >> 2] += (char)(opcode & 0xFF);
+                register[OP_X(opcode)] += (char)OP_NN(opcode);
                 break;
 
             case 0x8000:
                 switch(opcode & 0xF) {
                     case 0x0: // 8XY0 sets VX to value of VY
-                        register[(opcode & 0xF00) >> 2] = register[(opcode & 0xF0) >> 1];
+                        register[OP_X(opcode)] = register[OP_Y(opcode)];
                         break;
 
                     case 0x1: // 8XY1 Vx = Vx | Vy
-                        register[(opcode & 0xF00) >> 2] = (char)(register[(opcode & 0xF00) >> 2] | register[(opcode & 0xF0) >> 1]);
+                        register[OP_X(opcode)] |= register[OP_Y(opcode)];
                         break;
 
                     case 0x2: // 8XY2 Vx = Vx & Vy
-                        //TODO
+                        register[OP_X(opcode)] &= register[OP_Y(opcode)];
                         break;
 
                     case 0x3: // 8XY3 Vx = Vx ^ Vy
-                        //TODO
+                        register[OP_X(opcode)] ^= register[OP_Y(opcode)];
                         break;
 
                     case 0x4: // 8XY4 Vx += Vy
-                        //TODO
+                        if (register[OP_X(opcode)] > (0xFF - register[OP_Y(opcode)])) { // if carry
+                            register[0xF] = 1;
+                        } else {
+                            register[0xF] = 0;
+                        }
+                        register[OP_X(opcode)] += register[OP_Y(opcode)];
                         break;
 
                     case 0x5: // 8XY5 Vx -= Vy
-                        //TODO
+                        if (register[OP_X(opcode)] < register[OP_Y(opcode)]) { // if borrow
+                            register[0xF] = 1;
+                        } else {
+                            register[0xF] = 0;
+                        }
+                        register[OP_X(opcode)] -= register[OP_Y(opcode)];
                         break;
 
                     case 0x6: // 8XY6 Vx >> 1
-                        //TODO
+                        register[0xF] = (char)(register[OP_X(opcode)] & 0xF); // put LSB in VF
+                        register[OP_X(opcode)] = (char)(register[OP_X(opcode)] >> 1);
                         break;
 
                     case 0x7: // 8XY7 Vx = Vy - Vx
-                        //TODO
+                        if (register[OP_X(opcode)] > register[OP_Y(opcode)]) { // if borrow
+                            register[0xF] = 1;
+                        } else {
+                            register[0xF] = 0;
+                        }
+                        register[OP_X(opcode)] = (char)(register[OP_Y(opcode)] - register[OP_X(opcode)]);
                         break;
 
                     case 0xE: // 8XYE Vx << 1
-                        //TODO
+                        register[0xF] = (char)(register[OP_X(opcode)] & 0xF0); // put MSB to VF
+                        register[OP_X(opcode)] = (char)(register[OP_X(opcode)] << 1);
                         break;
 
                     default:
@@ -331,7 +372,9 @@ public class Processor {
         }
     }
 
-    // clear screen
+    /**
+     * clear screen
+     */
     private void clearScreen() {
         screen = new char[64 * 32];
     }
