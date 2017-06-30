@@ -10,13 +10,14 @@ public class Chip8 {
      * @param args file name to run on emulator.
      */
     public static void main(String[] args) {
-        // setup render system and register input callbacks
-        // TODO
 
         // Initialize chip8.Processor
         Processor chip8 = new Processor();
         chip8.init();
         chip8.loadProgram(args[0]);
+
+        // setup render system and register input callbacks
+        Graphic emulator = new Graphic(chip8);
 
         // emulation loop
         for (;;) {
